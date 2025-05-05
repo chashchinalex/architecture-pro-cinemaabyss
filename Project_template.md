@@ -366,11 +366,39 @@ kubectl apply -f .\src\kubernetes\circuit-breaker-config.yaml -n cinemaabyss
 
 Тестирование
 
+### fortio
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.25/samples/httpbin/sample-client/fortio-deploy.yaml -n cinemaabyss
+
+Получаем имя под
+FORTIO_POD=$(kubectl get pod -n cinemaabyss | grep fortio | awk '{print $1}')
+
+kubectl exec -n cinemaabyss $FORTIO_POD -c fortio -- fortio load -c 50 -qps 0 -n 500 -loglevel Warning http://movies-service:8081/api/movies
+
+Например,
+
+kubectl exec -n cinemaabyss fortio-deploy-b6757cbbb-7c9qg -c fortio -- fortio load -c 50 -qps 0 -n 500 -loglevel Warning http://movies-service:8081/api/movies
+
+Вывод будет типа такого
+
+IP addresses distribution: 10.106.113.46:8081: 421 Code 200 : 79 (15.8 %) Code 500 : 22 (4.4 %) Code 503 : 399 (79.8 %)
+
+Можно еще проверить статистику
+
+kubectl exec -n cinemaabyss fortio-deploy-b6757cbbb-7c9qg -c istio-proxy -- pilot-agent request GET stats | grep movies-service | grep pending
+
+И там смотрим
+
+cluster.outbound|8081||movies-service.cinemaabyss.svc.cluster.local;.upstream_rq_pending_total: 311 - столько раз срабатывал circuit breaker You can see 21 for the upstream_rq_pending_overflow value which means 21 calls so far have been flagged for circuit breaking.
+
+Делаем скриншот тестирования и прикладываем к работе
+
 ## Удаляем все
 
 Установите https://istio.io/latest/docs/reference/commands/istioctl/
 
 ```bash
-kubectl delete all --all -n cinemaabyss
+istioctl uninstall --purge 
+kubectl delete namespace istio-system 
+kubectl delete all --all -n cinemaabyss 
 kubectl delete namespace cinemaabyss
 ```
