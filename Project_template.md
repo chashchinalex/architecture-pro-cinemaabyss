@@ -347,6 +347,24 @@ minikube tunnel
 Потом вызовите 
 https://cinemaabyss.example.com/api/movies
 
+# Задание 5 
+Компания планирует активно развиваться и для повышения надежности, безопасности, реализации сетевых паттернов типа Circuit Breaker и канареечного деплоя вам как архитектору необходимо развернуть istio и настроить circuit breaker для monolith и movies сервисов.
+
+.\helm.exe repo add istio https://istio-release.storage.googleapis.com/charts .\helm.exe repo update
+
+.\helm install istio-base istio/base -n istio-system --set defaultRevision=default --create-namespace .\helm install istio-ingressgateway istio/gateway -n istio-system .\helm install istiod istio/istiod -n istio-system --wait
+
+helm install cinemaabyss .\src\kubernetes\helm --namespace cinemaabyss --create-namespace
+
+--kubectl label namespace cinemaabyss istio.io/inject=enabled
+
+kubectl label namespace cinemaabyss istio-injection=enabled --overwrite
+
+kubectl get namespace -L istio-injection
+
+kubectl apply -f .\src\kubernetes\circuit-breaker-config.yaml -n cinemaabyss
+
+Тестирование
 
 ## Удаляем все
 
