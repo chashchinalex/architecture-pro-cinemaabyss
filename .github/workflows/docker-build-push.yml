@@ -82,4 +82,22 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      
+      - name: Build and push Proxy Service Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./src/microservices/proxy
+          push: true
+          tags: ${{ steps.meta-proxy-service.outputs.tags }}
+          labels: ${{ steps.meta-proxy-service.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push Events Service Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./src/microservices/events
+          push: true
+          tags: ${{ steps.meta-events-service.outputs.tags }}
+          labels: ${{ steps.meta-events-service.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

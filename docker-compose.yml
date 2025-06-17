@@ -56,6 +56,8 @@ services:
       context: ./src/monolith
       dockerfile: Dockerfile
     container_name: cinemaabyss-monolith
+    domainname: monolith
+    hostname: monolith
     depends_on:
       - postgres
     ports:
@@ -72,6 +74,8 @@ services:
       context: ./src/microservices/movies
       dockerfile: Dockerfile
     container_name: cinemaabyss-movies-service
+    domainname: movies-service
+    hostname: movies-service
     depends_on:
       - postgres
     ports:
@@ -105,6 +109,8 @@ services:
       context: ./src/microservices/proxy
       dockerfile: Dockerfile
     container_name: cinemaabyss-proxy-service
+    domainname: proxy-service
+    hostname: proxy-service
     depends_on:
       - monolith
       - movies-service
