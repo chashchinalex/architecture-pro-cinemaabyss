@@ -44,7 +44,7 @@ jobs:
         id: meta-monolith
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.MONOLITH_IMAGE }}
+          images: ${{ env.MONOLITH_IMAGE_NAME }}
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
@@ -66,7 +66,7 @@ jobs:
         id: meta-movies
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.MOVIES_SERVICE_IMAGE }}
+          images: ${{ env.MOVIES_SERVICE_IMAGE_NAME }}
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
@@ -88,7 +88,7 @@ jobs:
         id: meta-proxy
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.PROXY_SERVICE_IMAGE }}
+          images: ${{ env.PROXY_SERVICE_IMAGE_NAME }}
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
@@ -110,7 +110,7 @@ jobs:
         id: meta-events
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.EVENTS_SERVICE_IMAGE }}
+          images: ${{ env.EVENTS_SERVICE_IMAGE_NAME }}
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
