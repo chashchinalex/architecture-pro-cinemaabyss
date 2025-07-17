@@ -37,8 +37,8 @@ def health():
 @app.route("/api/events/user", methods=["POST"])
 def create_user_event():
     data = request.json
-    if not data or "movie_id" not in data or "action" not in data:
-        return jsonify({"status": "error", "detail": "Invalid user event"}), 400
+    #if not data or "movie_id" not in data or "action" not in data:
+    #    return jsonify({"status": "error", "detail": "Invalid user event"}), 400
     return send_event("user", data)
 
 @app.route("/api/events/payment", methods=["POST"])
