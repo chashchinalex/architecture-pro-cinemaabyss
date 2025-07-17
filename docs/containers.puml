@@ -1,0 +1,149 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "Клиент", "Пользователь кинотеатра")
+
+Boundary(infrastructure, "Поддомен: Инфраструктура") {
+    System_Boundary(internal_layer, "ACL") {
+    Container(acl, "ACL", "Go", "")
+  }
+  System_Boundary(clients, "Клиентские приложения") {
+    Container(web, "Веб-клиент", "React", "")
+    Container(mobile, "Мобильное приложение", "React Native", "")
+  }
+
+  System_Boundary(api_layer, "Слой API и маршрутизации") {
+    Container(nginx, "Шлюз", "NGINX", "")
+    Container(bff_web, "BFF для Web", "Go", "")
+    Container(bff_mobile, "BFF для мобильных", "Go", "")
+    Container(bff_tv, "BFF для ТВ", "Go", "")
+    Container(notifify, "Уведомления", "Go", "")
+  }
+
+  System_Boundary(integration, "Интеграция с партнёрами") {
+    Container(rabbit, "Kafka", "Kafka", "")
+    Container(content_gw, "Контентный шлюз", "Go", "")
+  }
+
+
+
+  Container_Ext(recommendation, "API рекомендаций", "...", "")
+  Container_Ext(partners, "API партнёров", "...", "")
+}
+
+Boundary(kafka_zone, "Инфраструктура: Kafka") {
+  Container(kafka, "Kafka", "Kafka", "Транспорт событий и сообщений")
+}
+
+Boundary(finance, "Поддомен: Финансы") {
+  System_Boundary(payments, "Платёжные операции") {
+    Container(income, "Доходы", "Go", "")
+    ContainerDb(income_db, "БД доходов", "PostgreSQL", "")
+    Container(payment_gw, "Платёжный шлюз", "Go", "")
+    ContainerDb(payment_db, "БД платежей", "PostgreSQL", "")
+  }
+
+  System_Boundary(loyalty_zone, "Вознаграждение") {
+    Container(loyalty, "Лояльность", "Go", "")
+    ContainerDb(loyalty_db, "Журнал лояльности", "EventStore", "")
+  }
+}
+
+Boundary(entertainment, "Поддомен: Развлечения") {
+  System_Boundary(legacy, "Старый монолит") {
+    Container(monolit, "Монолит", "Go", "")
+    Container(monolit_db, "БД монолита", "PostgreSQL", "")
+  }
+
+  System_Boundary(catalog, "Каталог фильмов") {
+    Container(library, "Каталог", "Go", "")
+    ContainerDb(library_db, "БД каталога", "MongoDB", "")
+    Container(movies, "Метаданные", "Go", "")
+    ContainerDb(movies_db, "БД метаданных", "MongoDB", "")
+  }
+
+  System_Boundary(access, "Контроль доступа") {
+    Container(access_control, "Контроль доступа", "Go", "")
+    ContainerDb(access_db, "Журнал доступа", "EventStore", "")
+  }
+}
+
+Boundary(bi, "Поддомен: Аналитика") {
+  System_Boundary(monitoring_zone, "Мониторинг") {
+    Container(monitoring, "Мониторинг", "Grafana / Prometheus", "")
+  }
+
+  System_Boundary(troubleshooting, "Поиск и отладка") {
+    Container(search, "Поиск", "Elasticsearch", "")
+  }
+}
+
+Boundary(security, "Поддомен: Безопасность") {
+  System_Boundary(auth, "Авторизация") {
+    Container(identity, "Провайдер идентификации", "Keycloak", "")
+    ContainerDb(identity_db, "БД пользователей", "PostgreSQL", "")
+  }
+
+  System_Boundary(audit_zone, "Аудит") {
+    Container(audit, "Аудит", "Go", "")
+    ContainerDb(audit_db, "Журнал аудита", "EventStore", "")
+  }
+}
+
+Rel(user, web, "Использует")
+Rel(user, mobile, "Использует")
+
+Rel(kafka, notifify, "Kafka")
+Rel(kafka, monitoring, "Kafka")
+Rel(kafka, search, "Kafka")
+Rel(kafka, audit, "Kafka")
+Rel(kafka, library, "Kafka")
+Rel(kafka, income, "Kafka")
+
+Rel(web, nginx, "")
+Rel(mobile, nginx, "")
+
+Rel(nginx, bff_web, "")
+Rel(nginx, bff_mobile, "")
+Rel(nginx, bff_tv, "")
+Rel(nginx, identity, "REST")
+Rel(nginx, kafka, "Kafka")
+
+Rel(bff_web, kafka, "Kafka")
+Rel(bff_mobile, kafka, "Kafka")
+Rel(bff_tv, kafka, "Kafka")
+
+Rel(notifify, web, "Socket")
+Rel(notifify, mobile, "Socket")
+
+
+
+Rel(acl, monolit, "REST")
+Rel(acl, kafka, "Kafka")
+Rel(acl, movies, "REST")
+
+Rel(monolit, monolit_db, "")
+Rel(monolit, rabbit, "")
+Rel(rabbit, recommendation, "")
+
+Rel(content_gw, partners, "REST")
+Rel(content_gw, kafka, "Kafka")
+
+Rel(library, movies, "")
+Rel(library, access_control, "")
+Rel(library, library_db, "")
+Rel(movies, movies_db, "")
+Rel(access_control, access_db, "")
+
+
+Rel(nginx, income, "")
+Rel(income, payment_gw, "")
+Rel(income, loyalty, "REST")
+Rel(income, income_db, "")
+Rel(payment_gw, payment_db, "")
+Rel(loyalty, loyalty_db, "")
+
+Rel(identity, identity_db, "")
+Rel(audit, audit_db, "")
+
+@enduml

@@ -19,7 +19,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
+    networks: 
       - cinemaabyss-network
 
   # ZooKeeper for Kafka
