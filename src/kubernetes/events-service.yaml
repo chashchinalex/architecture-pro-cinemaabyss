@@ -20,9 +20,10 @@ spec:
       labels:
         app: event-service
     spec:
+      restartPolicy: Always
       containers:
       - name: event-service
-        image: ghcr.io/chashchinalex/architecture-pro-cinemaabyss/event-service:latest
+        image: ghcr.io/chashchinalex/architecture-pro-cinemaabyss/events-service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8082
@@ -72,7 +73,6 @@ spec:
           initialDelaySeconds: 15
           periodSeconds: 20
           failureThreshold: 10
-      restartPolicy: Always
       imagePullSecrets:
         - name: dockerconfigjson
 ---

@@ -275,7 +275,7 @@ cat .docker/config.json | base64
   Откройте логи event-service и сделайте скриншот обработки событий
 
 #### Шаг 3
-Добавьте сюда скриншота вывода при вызове https://cinemaabyss.example.com/api/movies и  скриншот вывода event-service после вызова тестов.
+Добавьте сюда скриншота вывода при вызове htcd tps://cinemaabyss.example.com/api/movies и  скриншот вывода event-service после вызова тестов.
 
 
 ## Задание 4
