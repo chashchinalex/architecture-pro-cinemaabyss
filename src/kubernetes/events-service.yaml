@@ -1,12 +1,12 @@
+{{- if .Values.eventService.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: event-service
-  namespace: cinemaabyss
   labels:
     app: event-service
 spec:
-  replicas: 1
+  replicas: {{ .Values.eventService.replicas }}
   selector:
     matchLabels:
       app: event-service
@@ -21,70 +21,57 @@ spec:
         app: event-service
     spec:
       containers:
-      - name: event-service
-        image: ghcr.io/chashchinalex/architecture-pro-cinemaabyss/events-service:latest
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 8082
-        env:
-        - name: CLIENT_ID
-          value: node-events-app
-        - name: GROUP_ID
-          value: node-events-group
-        - name: KAFKA_BROKERS
-          value: kafka:9092
-        - name: KAFKA_TOPIC_MOVIE
-          value: movie-events
-        - name: KAFKA_TOPIC_USER
-          value: "user-events"
-        - name: KAFKA_TOPIC_PAYMENT
-          value: "payment-events"
-        - name: MONGODB_URI
-          value: "mongodb://mongo:27017"
-        - name: MONGODB_DB
-          value: "eventsdb"
-        - name: PORT
-          value: "8082"
-        
-        envFrom:
-        - configMapRef:
-            name: cinemaabyss-config
-        - secretRef:
-            name: cinemaabyss-secrets
-        resources:
-          limits:
-            cpu: "300m"
-            memory: "256Mi"
-          requests:
-            cpu: "100m"
-            memory: "128Mi"
-        readinessProbe:
-          httpGet:
-            path: /api/events/health
-            port: 8082
-          initialDelaySeconds: 10
-          periodSeconds: 10
-          failureThreshold: 10
-        livenessProbe:
-          httpGet:
-            path: /api/events/health
-            port: 8082
-          initialDelaySeconds: 15
-          periodSeconds: 20
-          failureThreshold: 10
+        - name: event-service
+          image: {{ .Values.eventService.image.repository }}:{{ .Values.eventService.image.tag }}
+          imagePullPolicy: {{ .Values.eventService.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.eventService.service.targetPort }}
+          env:
+            - name: CLIENT_ID
+              value: node-events-app
+            - name: GROUP_ID
+              value: node-events-group
+            - name: KAFKA_BROKERS
+              value: kafka:9092
+            - name: KAFKA_TOPIC_MOVIE
+              value: movie-events
+            - name: KAFKA_TOPIC_USER
+              value: user-events
+            - name: KAFKA_TOPIC_PAYMENT
+              value: payment-events
+            - name: MONGODB_URI
+              value: mongodb://mongo:27017
+            - name: MONGODB_DB
+              value: eventsdb
+            - name: PORT
+              value: "{{ .Values.eventService.service.targetPort }}"
+          envFrom:
+            - configMapRef:
+                name: cinemaabyss-config
+            - secretRef:
+                name: cinemaabyss-secrets
+          resources:
+            limits:
+              cpu: {{ .Values.eventService.resources.limits.cpu }}
+              memory: {{ .Values.eventService.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.eventService.resources.requests.cpu }}
+              memory: {{ .Values.eventService.resources.requests.memory }}
+          readinessProbe:
+            httpGet:
+              path: /api/events/health
+              port: {{ .Values.eventService.service.targetPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /api/events/health
+              port: {{ .Values.eventService.service.targetPort }}
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 10
       restartPolicy: Always
       imagePullSecrets:
-        - name: dockerconfigjson
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: event-service
-  namespace: cinemaabyss
-spec:
-  selector:
-    app: event-service
-  ports:
-  - port: 8082
-    targetPort: 8082
-  type: ClusterIP
+        - name: {{ .Values.imagePullSecrets.dockerconfigjson }}
+{{- end }}
