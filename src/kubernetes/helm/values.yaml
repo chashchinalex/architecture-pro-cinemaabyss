@@ -70,7 +70,7 @@ proxyService:
     targetPort: 8080
     type: ClusterIP
 
-# ✅ Renamed movieService → moviesService
+
 moviesService:
   enabled: true
   image:
@@ -90,8 +90,8 @@ moviesService:
     targetPort: 8081
     type: ClusterIP
 
-# Events service configuration
-eventService:
+#Events service configuration
+eventsService:
   enabled: true
   image:
     repository: ghcr.io/chashchinalex/architecture-pro-cinemaabyss/events-service
