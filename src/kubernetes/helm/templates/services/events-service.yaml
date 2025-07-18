@@ -2,17 +2,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: events-service
+  name: event-service
   namespace: {{ .Values.global.namespace }}
   labels:
-    app: events-service
+    app: event-service
     app.kubernetes.io/name: {{ include "cinemaabyss.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.eventsService.replicas }}
   selector:
     matchLabels:
-      app: events-service
+      app: event-service
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -21,21 +21,74 @@ spec:
   template:
     metadata:
       labels:
-        app: events-service
+        app: event-service
+        app.kubernetes.io/name: {{ include "cinemaabyss.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       containers:
-      - name: events-service
-       .... тут
+        - name: event-service
+          image: {{ .Values.eventsService.image.repository }}:{{ .Values.eventsService.image.tag }}
+          imagePullPolicy: {{ .Values.eventsService.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.eventsService.service.targetPort }}
+          env:
+            - name: CLIENT_ID
+              value: node-events-app
+            - name: GROUP_ID
+              value: node-events-group
+            - name: KAFKA_BROKERS
+              value: kafka:9092
+            - name: KAFKA_TOPIC_MOVIE
+              value: movie-events
+            - name: KAFKA_TOPIC_USER
+              value: "user-events"
+            - name: KAFKA_TOPIC_PAYMENT
+              value: "payment-events"
+            - name: MONGODB_URI
+              value: "mongodb://mongo:27017"
+            - name: MONGODB_DB
+              value: "eventsdb"
+            - name: PORT
+              value: "8082"
+          envFrom:
+            - configMapRef:
+                name: cinemaabyss-config
+            - secretRef:
+                name: cinemaabyss-secrets
+          resources:
+            {{- toYaml .Values.eventsService.resources | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /api/events/health
+              port: {{ .Values.eventsService.service.targetPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+          livenessProbe:
+            httpGet:
+              path: /api/events/health
+              port: {{ .Values.eventsService.service.targetPort }}
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 2
+      restartPolicy: Always
+      #imagePullSecrets:
+      #  - name: dockerconfigjson
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: events-service
+  name: event-service
   namespace: {{ .Values.global.namespace }}
   labels:
-    app: events-service
+    app: event-service
     app.kubernetes.io/name: {{ include "cinemaabyss.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
- ........ и тут
+  selector:
+    app: event-service
+  ports:
+    - port: {{ .Values.eventsService.service.port }}
+      targetPort: {{ .Values.eventsService.service.targetPort }}
+  type: {{ .Values.eventsService.service.type }}
 {{- end }}

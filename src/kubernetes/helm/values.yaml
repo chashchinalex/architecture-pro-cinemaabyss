@@ -5,7 +5,8 @@ global:
 
 # Image pull secrets
 imagePullSecrets:
-  dockerconfigjson: ewoJImF1dGhzIjogewoJCSJnaGNyLmlvIjogeyJhdXRoIjogIlkyaGhjMmhqYUdsdVlXeGxlRHBuYUhCZllYa3djbFJOUkV0dU9YUmtSV1E0U0doNFdGVlBPR3RsWkZGdlNuSTRNWEZ1TUdsQyJ9Cgl9LAoJImNyZWRzU3RvcmUiOiAib3N4a2V5Y2hhaW4iCn0
+  dockerconfigjson: eyJhdXRocyI6eyJnaGNyLmlvIjp7ImF1dGgiOiJZMmhoc2hjaGluYWxleDpnaHBfYXkwclRNRGtuOXRkRWQ4SHh4WFVPOGtlZFFvSnI4MXFuMGkifX0sImNyZWRzU3RvcmUiOiAib3N4a2V5Y2hhaW4ifQ==
+
 
 # Database configuration
 database:
